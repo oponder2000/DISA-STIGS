@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    This PowerShell script ensures that the maximum size of the Windows Application event log is at least 32768 KB (32 MB).
+    This PowerShell script ensures that Windows 11 is configured to enable Remote host allows delegation of non-exportable credentials.
 
 .NOTES
     Author          : Oliver Ponder
