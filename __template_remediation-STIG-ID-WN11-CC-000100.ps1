@@ -27,11 +27,11 @@
 
 #Requires -RunAsAdministrator
 
-$RegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\FVE"
-$ValueName = "MinimumPIN"
-$ValueData = 6
+$RegistryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers"
+$ValueName = "DisableWebPnPDownload"
+$ValueData = 1
 
-# Create path if needed
+# Create the registry path if it doesn't exist
 if (-not (Test-Path -Path $RegistryPath)) {
     New-Item -Path $RegistryPath -Force | Out-Null
 }
@@ -39,7 +39,15 @@ if (-not (Test-Path -Path $RegistryPath)) {
 # Set the value
 New-ItemProperty -Path $RegistryPath -Name $ValueName -Value $ValueData -PropertyType DWord -Force | Out-Null
 
-Write-Host "Registry value set: $RegistryPath\$ValueName = $ValueData" -ForegroundColor Green
+# Verify
+$CurrentValue = (Get-ItemProperty -Path $RegistryPath -Name $ValueName).$ValueName
+
+if ($CurrentValue -eq $ValueData) {
+    Write-Host "✓ DisableWebPnPDownload = $CurrentValue" -ForegroundColor Green
+    Write-Host "Registry path: $RegistryPath" -ForegroundColor Green
+} else {
+    Write-Host "✗ Failed: Expected $ValueData, got $CurrentValue" -ForegroundColor Red
+}
 
 # Refresh Group Policy
 gpupdate /force
