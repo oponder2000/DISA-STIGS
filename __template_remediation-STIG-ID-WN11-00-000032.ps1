@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    This PowerShell script ensures that the maximum size of the Windows Application event log is at least 32768 KB (32 MB).
+    This PowerShell script ensures that a BitLocker PIN with a minimum length of six digits is used for pre-boot authentication.
 
 .NOTES
     Author          : Oliver Ponder
