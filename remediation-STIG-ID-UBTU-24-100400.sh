@@ -22,8 +22,8 @@
 .USAGE
     Put any usage instructions here.
     Example syntax: 
-    chmod +x remediation_template(STIG-ID-UBTU-24-100400).ps1 
-    ./remediation_template(STIG-ID-UBTU-24-100400).sh
+    chmod +x __remediation-STIG-ID-UBTU-24-100400.sh
+    ./__remediation-STIG-ID-UBTU-24-100400.sh
 #>
 
 #!/bin/bash
