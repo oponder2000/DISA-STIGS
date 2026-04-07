@@ -1,30 +1,29 @@
-<#
-.SYNOPSIS
-    This Bash script configures the audit service to produce audit records containing the information needed to establish when (date and time) an event occurred.
+#.SYNOPSIS
+#    This Bash script configures the audit service to produce audit records containing the information needed to establish when (date and time) an event occurred.
+#
+#.NOTES
+#    Author          : Oliver Ponder
+#    LinkedIn        : https://www.linkedin.com/in/oliver-ponder/
+#    GitHub          : https://github.com/oponder2000
+#    Date Created    : 2026-04-07
+#    Last Modified   : 2026-04-07
+#    Version         : 1.0
+#    CVEs            : N/A
+#    Plugin IDs      : N/A
+#    STIG-ID         : UBTU-24-100400
+#
+#.TESTED ON
+#    Date(s) Tested  : 2026-04-07
+#    Tested By       : Oliver Ponder
+#    Systems Tested  : Ubuntu 24.04.4 LTS
+#    Bash Ver. : version 5.2.21(1)-release (x86_64-pc-linux-gnu)
+#
+#.USAGE
+#    Put any usage instructions here.
+#    Example syntax: 
+#    chmod +x remediation-STIG-ID-UBTU-24-100400.sh
+#    ./remediation-STIG-ID-UBTU-24-100400.sh
 
-.NOTES
-    Author          : Oliver Ponder
-    LinkedIn        : https://www.linkedin.com/in/oliver-ponder/
-    GitHub          : https://github.com/oponder2000
-    Date Created    : 2026-04-07
-    Last Modified   : 2026-04-07
-    Version         : 1.0
-    CVEs            : N/A
-    Plugin IDs      : N/A
-    STIG-ID         : UBTU-24-100400
-
-.TESTED ON
-    Date(s) Tested  : 2026-04-07
-    Tested By       : Oliver Ponder
-    Systems Tested  : Ubuntu 24.04.4 LTS
-    Bash Ver. : version 5.2.21(1)-release (x86_64-pc-linux-gnu)
-
-.USAGE
-    Put any usage instructions here.
-    Example syntax: 
-    chmod +x remediation-STIG-ID-UBTU-24-100400.sh
-    ./remediation-STIG-ID-UBTU-24-100400.sh
-#>
 
 #!/bin/bash
 # STIG: UBTU-24-100400
