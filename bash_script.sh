@@ -1,6 +1,6 @@
 #!/bin/bash
-# STIG: UBTU-24-600140
-# Restrict access to the kernel message buffer (kernel.dmesg_restrict = 1)
+# STIG: UBTU-24-100400
+# Ubuntu 24.04 LTS must have the "auditd" package installed.
 
 set -e
 
@@ -10,50 +10,15 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}[*] Checking kernel.dmesg_restrict setting...${NC}"
+echo -e "${YELLOW}[*] Checking if auditd is installed...${NC}"
 
-# Check current value
-CURRENT_VALUE=$(sysctl kernel.dmesg_restrict 2>/dev/null | awk -F= '{print $2}' | xargs)
-
-if [[ "$CURRENT_VALUE" == "1" ]]; then
-    echo -e "${GREEN}[✓] kernel.dmesg_restrict is already set to 1${NC}"
+# Check if auditd is installed
+if dpkg -l | grep -q "^ii.*auditd"; then
+    echo -e "${GREEN}[✓] auditd is already installed${NC}"
+    dpkg -l | grep auditd | head -1
+    exit 0
 else
-    echo -e "${RED}[✗] kernel.dmesg_restrict is set to $CURRENT_VALUE (should be 1)${NC}"
-fi
-
-# Check for conflicting configurations across all sysctl directories
-echo -e "${YELLOW}[*] Scanning for conflicting configurations...${NC}"
-
-SYSCTL_DIRS=(
-    "/run/sysctl.d/"
-    "/etc/sysctl.d/"
-    "/usr/local/lib/sysctl.d/"
-    "/usr/lib/sysctl.d/"
-    "/lib/sysctl.d/"
-)
-
-CONFLICTS_FOUND=0
-
-for dir in "${SYSCTL_DIRS[@]}"; do
-    if [[ -d "$dir" ]]; then
-        # Look for kernel.dmesg_restrict set to 0 (uncommented)
-        if grep -r "^kernel.dmesg_restrict\s*=\s*0" "$dir" 2>/dev/null; then
-            echo -e "${RED}[✗] Found conflicting setting (= 0) in $dir${NC}"
-            CONFLICTS_FOUND=1
-        fi
-    fi
-done
-
-# Also check main sysctl.conf
-if [[ -f /etc/sysctl.conf ]]; then
-    if grep -q "^kernel.dmesg_restrict\s*=\s*0" /etc/sysctl.conf 2>/dev/null; then
-        echo -e "${RED}[✗] Found conflicting setting (= 0) in /etc/sysctl.conf${NC}"
-        CONFLICTS_FOUND=1
-    fi
-fi
-
-if [[ $CONFLICTS_FOUND -eq 0 ]]; then
-    echo -e "${GREEN}[✓] No conflicting configurations found${NC}"
+    echo -e "${RED}[✗] auditd is NOT installed${NC}"
 fi
 
 # ============ FIX SECTION ============
@@ -66,38 +31,37 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-# Remove any conflicting entries (set to 0)
-for dir in "${SYSCTL_DIRS[@]}"; do
-    if [[ -d "$dir" ]]; then
-        find "$dir" -type f -exec sed -i 's/^kernel.dmesg_restrict\s*=\s*0/#kernel.dmesg_restrict = 0/g' {} \;
-    fi
-done
+# Update package lists
+echo -e "${YELLOW}[*] Updating package lists...${NC}"
+apt update > /dev/null 2>&1
 
-# Remove conflicting line from main sysctl.conf
-sed -i 's/^kernel.dmesg_restrict\s*=\s*0/#kernel.dmesg_restrict = 0/g' /etc/sysctl.conf
+# Install auditd
+echo -e "${YELLOW}[*] Installing auditd package...${NC}"
+apt install -y auditd > /dev/null 2>&1
 
-# Add the correct setting to /etc/sysctl.d/99-stig-hardening.conf
-STIG_CONF="/etc/sysctl.d/99-stig-hardening.conf"
+# Enable and start auditd service
+echo -e "${YELLOW}[*] Enabling auditd service...${NC}"
+systemctl enable auditd > /dev/null 2>&1
+systemctl start auditd > /dev/null 2>&1
 
-if ! grep -q "kernel.dmesg_restrict" "$STIG_CONF" 2>/dev/null; then
-    echo "kernel.dmesg_restrict = 1" | tee -a "$STIG_CONF" > /dev/null
-    echo -e "${GREEN}[✓] Added kernel.dmesg_restrict = 1 to $STIG_CONF${NC}"
+# Verify the installation
+echo -e "${YELLOW}[*] Verifying installation...${NC}"
+
+if dpkg -l | grep -q "^ii.*auditd"; then
+    echo -e "${GREEN}[✓] auditd package installed successfully${NC}"
+    dpkg -l | grep auditd | head -1
 else
-    sed -i 's/^kernel.dmesg_restrict\s*=.*/kernel.dmesg_restrict = 1/g' "$STIG_CONF"
-    echo -e "${GREEN}[✓] Updated kernel.dmesg_restrict in $STIG_CONF${NC}"
-fi
-
-# Reload sysctl settings
-echo -e "${YELLOW}[*] Reloading sysctl settings...${NC}"
-sysctl --system > /dev/null 2>&1
-
-# Verify the fix
-FINAL_VALUE=$(sysctl kernel.dmesg_restrict 2>/dev/null | awk -F= '{print $2}' | xargs)
-
-if [[ "$FINAL_VALUE" == "1" ]]; then
-    echo -e "${GREEN}[✓] STIG check PASSED: kernel.dmesg_restrict = 1${NC}"
-    exit 0
-else
-    echo -e "${RED}[✗] STIG check FAILED: kernel.dmesg_restrict = $FINAL_VALUE${NC}"
+    echo -e "${RED}[✗] Failed to install auditd${NC}"
     exit 1
 fi
+
+# Check if auditd service is running
+if systemctl is-active --quiet auditd; then
+    echo -e "${GREEN}[✓] auditd service is running${NC}"
+else
+    echo -e "${YELLOW}[!] auditd service is not running, attempting to start...${NC}"
+    systemctl start auditd
+fi
+
+echo -e "${GREEN}[✓] STIG check PASSED: auditd is installed and running${NC}"
+exit 0
