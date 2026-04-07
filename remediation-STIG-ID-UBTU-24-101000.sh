@@ -1,6 +1,6 @@
 #.SYNOPSIS
 #    This Bash script allows users to directly initiate a session lock for all connection types.
-
+#
 #.NOTES
 #    Author          : Oliver Ponder
 #    LinkedIn        : https://www.linkedin.com/in/oliver-ponder/
@@ -11,7 +11,7 @@
 #    CVEs            : N/A
 #    Plugin IDs      : N/A
 #    STIG-ID         : UBTU-24-101000
-
+#
 #.TESTED ON
 #    Date(s) Tested  : 2026-04-07
 #    Tested By       : Oliver Ponder
