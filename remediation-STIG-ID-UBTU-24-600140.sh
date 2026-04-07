@@ -22,7 +22,8 @@
 .USAGE
     Put any usage instructions here.
     Example syntax: 
-    PS C:\> .\__remediation_template(STIG-ID-UBTU-24-600140).ps1 
+    chmod +x __remediation-STIG-ID-UBTU-24-600140.sh
+    ./__remediation-STIG-ID-UBTU-24-600140.sh
 #>
 
 #!/bin/bash
