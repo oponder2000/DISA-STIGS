@@ -1,7 +1,6 @@
 #!/bin/bash
-# STIG: UBTU-24-101000
-# Ubuntu 24.04 LTS must allow users to directly initiate a session lock for all connection types.
-# This is accomplished by installing the "vlock" package.
+# STIG: UBTU-24-100660
+# Ubuntu 24.04 LTS must use the "SSSD" package for multifactor authentication services.
 
 set -e
 
@@ -11,15 +10,28 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${YELLOW}[*] Checking if vlock is installed...${NC}"
+echo -e "${YELLOW}[*] Checking if sssd is installed and enabled...${NC}"
 
-# Check if vlock is installed
-if dpkg -l | grep -q "^ii.*vlock"; then
-    echo -e "${GREEN}[✓] vlock is already installed${NC}"
-    dpkg -l | grep vlock | head -1
-    exit 0
+# Check if sssd is installed
+if dpkg -l | grep -q "^ii.*sssd"; then
+    echo -e "${GREEN}[✓] sssd package is installed${NC}"
+    dpkg -l | grep "^ii.*sssd" | head -1
 else
-    echo -e "${RED}[✗] vlock is NOT installed${NC}"
+    echo -e "${RED}[✗] sssd package is NOT installed${NC}"
+fi
+
+# Check if sssd service is enabled
+if systemctl is-enabled sssd > /dev/null 2>&1; then
+    echo -e "${GREEN}[✓] sssd service is enabled${NC}"
+else
+    echo -e "${RED}[✗] sssd service is NOT enabled${NC}"
+fi
+
+# Check if sssd service is active
+if systemctl is-active --quiet sssd; then
+    echo -e "${GREEN}[✓] sssd service is active (running)${NC}"
+else
+    echo -e "${RED}[✗] sssd service is NOT active${NC}"
 fi
 
 # ============ FIX SECTION ============
@@ -36,21 +48,44 @@ fi
 echo -e "${YELLOW}[*] Updating package lists...${NC}"
 apt update > /dev/null 2>&1
 
-# Install vlock
-echo -e "${YELLOW}[*] Installing vlock package...${NC}"
-apt install -y vlock > /dev/null 2>&1
+# Install sssd and related packages
+echo -e "${YELLOW}[*] Installing sssd package...${NC}"
+apt install -y sssd > /dev/null 2>&1
 
-# Verify the installation
-echo -e "${YELLOW}[*] Verifying installation...${NC}"
+# Enable sssd service to start on boot
+echo -e "${YELLOW}[*] Enabling sssd service...${NC}"
+systemctl enable sssd.service > /dev/null 2>&1
 
-if dpkg -l | grep -q "^ii.*vlock"; then
-    echo -e "${GREEN}[✓] vlock package installed successfully${NC}"
-    dpkg -l | grep vlock | head -1
-else
-    echo -e "${RED}[✗] Failed to install vlock${NC}"
+# Start sssd service
+echo -e "${YELLOW}[*] Starting sssd service...${NC}"
+systemctl start sssd.service > /dev/null 2>&1
+
+# Verify installation and status
+echo -e "${YELLOW}[*] Verifying installation and status...${NC}"
+
+# Check if sssd is installed
+if ! dpkg -l | grep -q "^ii.*sssd"; then
+    echo -e "${RED}[✗] Failed to install sssd package${NC}"
     exit 1
 fi
+echo -e "${GREEN}[✓] sssd package is installed${NC}"
 
-echo -e "${GREEN}[✓] STIG check PASSED: vlock is installed${NC}"
-echo -e "${YELLOW}[*] Users can now lock their session with: vlock${NC}"
+# Check if sssd is enabled
+if ! systemctl is-enabled sssd > /dev/null 2>&1; then
+    echo -e "${RED}[✗] Failed to enable sssd service${NC}"
+    exit 1
+fi
+echo -e "${GREEN}[✓] sssd service is enabled${NC}"
+
+# Check if sssd is active
+if ! systemctl is-active --quiet sssd; then
+    echo -e "${RED}[✗] sssd service is not running${NC}"
+    exit 1
+fi
+echo -e "${GREEN}[✓] sssd service is active (running)${NC}"
+
+echo ""
+echo -e "${GREEN}[✓] STIG check PASSED: SSSD is installed, enabled, and running${NC}"
+echo -e "${YELLOW}[*] Note: SSSD configuration files are located in /etc/sssd/${NC}"
+echo -e "${YELLOW}[*] Configure SSSD providers and authentication methods as needed${NC}"
 exit 0
