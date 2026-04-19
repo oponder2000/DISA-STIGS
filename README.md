@@ -2,6 +2,8 @@
 
 ## Windows 11 & Ubuntu 24.04 Compliance
 
+**Author:** Oliver Ponder
+
 **Report Date:** April 19, 2026
 
 ---
@@ -144,10 +146,10 @@ Five STIG controls were successfully remediated on the Ubuntu 24.04 system using
 
 All remediation scripts have been successfully executed and verified. Post-remediation scans confirm that all 10 STIG controls now comply with DISA requirements.
 
-| System | STIGs Remediated | Status |
-|--------|------------------|--------|
-| Windows 11 | 5 | ✓ Compliant |
-| Ubuntu 24.04 | 5 | ✓ Compliant |
+| System | STIGs Remediated |
+|--------|------------------|
+| Windows 11 | 5 |
+| Ubuntu 24.04 | 5 |
 
 ---
 
@@ -168,4 +170,4 @@ All remediation scripts are maintained in the following GitHub repository:
 
 ## Conclusion
 
-All 10 DISA STIG remediation tasks have been completed successfully. Both Windows 11 and Ubuntu 24.04 systems now comply with the required security baselines. Remediation scripts have been documented and are available in the project repository for future use and version control.
+All 10 DISA STIG remediation tasks have been completed successfully. Both Windows 11 and Ubuntu 24.04 systems are now closer to compliance but remaining STIGS must be remediated. Remediation scripts have been documented and are available in the project repository for future use and version control.
